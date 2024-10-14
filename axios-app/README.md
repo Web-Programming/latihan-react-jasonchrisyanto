@@ -20,3 +20,5 @@
 ![image](https://github.com/user-attachments/assets/80bbfc39-3c0f-476c-9957-978dfbc1abe1)
 
 # TAMPILAN KETIKA MEMILIH INPUT
+![image](https://github.com/user-attachments/assets/8973783b-dffc-457e-bdb9-fb6bf12346cb)
+

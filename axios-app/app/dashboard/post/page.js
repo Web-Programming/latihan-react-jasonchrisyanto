@@ -1,126 +1,120 @@
 "use client";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-async function getUser() {
-  try {
-    const res = await axios.get("https://reqres.in/api/users");
-    const users = res?.data?.data;
-    return users;
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-    return [];
-  }
-}
+export default function PostForm() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-async function updateUser(id, updatedData) {
-  try {
-    const res = await axios.put(`https://reqres.in/api/users/${id}`, updatedData);
-    console.log("User updated:", res.data);
-    return res.data;
-  } catch (error) {
-    console.error("Error updating user:", error);
-  }
-}
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-async function deleteUser(id) {
-  try {
-    const res = await axios.delete(`https://reqres.in/api/users/${id}`);
-    console.log("User deleted:", res.status);
-    return res.status;
-  } catch (error) {
-    console.error("Error deleting user:", error);
-  }
-}
+    try {
+      const response = await axios.post("https://reqres.in/api/users", {
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+      });
 
-export default function Page() {
-  const [users, setUsers] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setMessage("Data berhasil dikirim!");
 
-  useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      const userData = await getUser();
-      setUsers(userData);
-      setIsLoading(false);
-    }
-
-    fetchData();
-  }, []);
-
-  const handleUpdate = async (id) => {
-    const updatedData = {
-      first_name: "Updated",
-      last_name: "User",
-      email: "updateduser@example.com",
-    };
-    const updatedUser = await updateUser(id, updatedData);
-    if (updatedUser) {
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === id ? { ...user, ...updatedUser } : user
-        )
+    } catch (error) {
+      console.error("Error pada saat Input form:", error);
+      setMessage(
+        error.response?.data?.error || "Terjadi kesalahan saat mengirim data."
       );
-    }
-  };
-
-  const handleDelete = async (id) => {
-    const status = await deleteUser(id);
-    if (status === 204) {
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="container mx-auto mt-8">
-      <h1 className="text-4xl font-bold text-center mb-8">User Data</h1>
-      {isLoading ? (
-        <p className="text-center">Loading...</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {users.length > 0 ? (
-            users.map((user) => (
-              <div
-                className="bg-white shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105"
-                key={user.id}
-              >
-                <img
-                  src={user.avatar}
-                  className="w-full h-48 object-cover"
-                  alt="Avatar"
-                />
-                <div className="p-6">
-                  <h5 className="text-xl font-bold text-black mb-2">
-                    {user.first_name} {user.last_name}
-                  </h5>
-                  <p className="text-gray-600 mb-4">
-                    Email:{" "}
-                    <a className="text-indigo-600 hover:underline" href={`mailto:${user.email}`}>
-                      {user.email}
-                    </a>
-                  </p>
-                  <div className="flex justify-between mt-4">
-                    <button
-                      onClick={() => handleUpdate(user.id)}
-                      className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-md"
-                    >
-                      Update
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-center">No users found.</p>
-          )}
-        </div>
-      )}
+    <div className="flex items-center justify-center min-h-screen bg-gray-900">
+      <div className="bg-gray-800 p-6 max-w-md w-full rounded-lg shadow-lg">
+        <h1 className="text-2xl font-bold text-gray-100 mb-6 text-center">
+          Submit User Data
+        </h1>
+
+        {message && (
+          <div
+            className={`mb-4 p-3 text-center rounded ${
+              message.includes("berhasil")
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {message}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="firstName"
+              className="block text-sm font-medium text-gray-200"
+            >
+              First Name
+            </label>
+            <input
+              type="text"
+              id="firstName"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="lastName"
+              className="block text-sm font-medium text-gray-200"
+            >
+              Last Name
+            </label>
+            <input
+              type="text"
+              id="lastName"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-200"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-300 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
